@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html ng-app="auctionApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100,500' rel='stylesheet' type='text/css'>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script src="controllers.js"></script>
+    <script src="client.js"></script>
+    <title>Manage Auction</title>
+    <style>
+        body {
+            margin: 0px;
+            font-family: 'Roboto', sans-serif;
+            background: #303030;
+        }
+
+        #container {
+            padding-top: 20px;
+            width: 740px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #header {
+            height: 80px;
+            line-height: 80px;
+            text-align: left;
+            font-weight: 200;
+            font-size: 26px;
+            color: #fff;
+        }
+
+        #content {
+            min-height: 300px;
+        }
+
+        .card {
+            width: 360px;
+            background: #515359;
+            border-radius: 3px;
+            -webkit-box-shadow: -2px 4px 16px -3px rgba(0,0,0,0.75);
+            -moz-box-shadow: -2px 4px 16px -3px rgba(0,0,0,0.75);
+            box-shadow: -2px 4px 16px -3px rgba(0,0,0,0.75);
+            margin-bottom: 20px;
+        }
+
+        .left {
+            float: left;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .header {
+            height: 30px;
+            background-color: #669900;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+
+        .footer {
+            height: 10px;
+            background-color: #669900;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        .image {
+            width: 360px;
+            height: 160px;
+            overflow: hidden;
+        }
+
+        .image img {
+            width: 360px;
+        }
+
+        .infocontainer {
+            padding: 10px;
+            min-height: 50px;
+        }
+
+        .names {
+            float: left;
+        }
+
+        .title {
+            font-weight: 200;
+            color: #fff;
+            font-size: 22px;
+        }
+
+        .donor {
+            font-size: 14px;
+            color: #999;
+            font-weight: 200;
+            text-transform: uppercase;
+        }
+
+        .bids {
+            float: right;
+            text-align: right;
+        }
+
+        .winningbid {
+            color: #669900;
+            font-size: 22px;
+        }
+
+        .description {
+            color: #fff;
+            font-weight: 300;
+            font-size: 13px;
+            padding: 10px;
+            min-height: 120px;
+            max-height: 120px;
+            overflow: scroll;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            font-family: "Roboto", sans-serif;
+            font-weight: 200;
+            font-size: 16px;
+            padding: 5px;
+            color: #fff;
+        }
+
+        textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            font-family: "Roboto", sans-serif;
+            font-weight: 200;
+            font-size: 13px;
+            width: 100%;
+            min-height: 50px;
+            color: #fff;
+        }
+
+        ::-webkit-input-placeholder {
+            color: #777;
+        }
+
+        :-moz-placeholder { /* Firefox 18- */
+            color: #777;
+        }
+
+        ::-moz-placeholder {  /* Firefox 19+ */
+            color: #777;
+        }
+
+        :-ms-input-placeholder {
+            color: #777;
+        }
+
+        .removebutton {
+            display: none;
+        }
+
+        .card:hover .removebutton {
+            display: block;
+        }
+    </style>
+
+    <script>
+        function showImg() {
+            $("#newimg").attr("src", $("#imgurl").val());
+        }
+
+        function createItem() {
+
+            var newItem = JSON.stringify(
+                    {
+                        "name": $("#itemname").val(),
+                        "donorname": $("#donorname").val(),
+                        "price": parseInt($("#price").val()),
+                        "imageurl": $("#imgurl").val(),
+                        "description": $("#descriptionbody").val()
+                    }
+            );
+
+            $.ajax({
+                type: "POST",
+                url: "https://api.parse.com/1/classes/Item",
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader('X-Parse-Application-Id', '<your app id>');
+                    xhr.setRequestHeader('X-Parse-REST-API-Key', '<your rest api key>');
+                },
+                data: newItem,
+                success: function () {
+                    location.reload();
+                },
+                contentType:"application/json; charset=utf-8",
+                dataType:"json"
+            });
+        }
+    </script>
+</head>
+<body ng-controller="ItemCardsCtrl">
+<div id="container">
+    <div id="header">
+        AUCTION MONITORING
+    </div>
+    <div id="content">
+
+        <div class="card left">
+            <div class="header" style="background: #999"></div>
+            <div style="height: 3px; background: #777"></div>
+            <div style="padding: 25px; color: #fff;">
+                <table cellPadding="0" cellspacing="10">
+                    <tr>
+                        <td style="text-align: right">
+                            <span class="donor">Raised so far </span></td>
+                        <td><span class="title">{{totalRaised | noFractionCurrency}}</span></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: right">
+                            <span class="donor">Bid count </span></td>
+                        <td><span class="title">{{bidCount}}</span></td>
+                    </tr>
+                </table>
+                <br/>
+                <span class="title">{{mostPopularBidCount}}</span><br/>
+                <span class="donor">Most popular by bid count</span>
+                <br/><br/>
+                <span class="title">{{mostPopularPrice}}</span><br/>
+                <span class="donor">Most popular by highest bid</span>
+                <br/><br/>
+                <span class="title">{{highestGrossing}}</span><br/>
+                <span class="donor">Highest Grossing</span>
+
+            </div>
+            <div style="height: 3px; background: #777"></div>
+            <div class="footer" style="background: #999"></div>
+        </div>
+
+        <div class="card right">
+            <div class="header" style="background: #999"></div>
+            <div style="height: 3px; background: #777"></div>
+            <div style="padding: 25px; color: #fff;">
+                <table cellPadding="0" cellspacing="10">
+                    <tr>
+                        <td style="text-align: right">
+                            <span class="donor">Number of items </span></td>
+                        <td><span class="title">{{itemCount}}</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align: right">
+                            <span class="donor">items with no bids </span></td>
+                        <td><span class="title">{{noBidCount}}</span></td>
+                    </tr>
+                </table>
+                <br/>
+
+                <div ng-repeat="item in items | orderObjectBy:'gross'">
+                <span class="title">${{item.gross}}: {{item.name}} <span style="color: #aaa">by {{item.donorname}}</span></span><br/>
+
+                <div class="donor" ng-repeat="bidObj in item.bidObjs">${{bidObj.amt}} by {{bidObj.who}}</div>
+
+                <br/><br/>
+                </div>
+
+            </div>
+            <div style="height: 3px; background: #777"></div>
+            <div class="footer" style="background: #999"></div>
+        </div>
+
+        <!-- OLD CODE FOR ADDING/DISPLAYING/REMOVING ITEMS FROM THE WEB -->
+
+        <!--
+        <div class="card left">
+            <div class="header" style="background: #999"></div>
+            <div style="height: 3px; background: #777"></div>
+            <div class="image" id="imgcontainer" style="text-align: center; position: relative">
+                <img id="newimg" src="{{item.imageurl}}" style="position: relative" />
+                <input id="imgurl" type="text" placeholder="image url" style="position: absolute; margin-left: 10px; margin-bottom: 10px; left: 0; bottom: 0; right: 0; margin-top: 70px; background: #515359;" onBlur="showImg()" />
+                <input type="button" value="submit item"
+                       style="position: absolute; top: 0; right: 0; margin-top: 10px; margin-right: 10px; background: #669900;
+                       border: 1px solid #fff;"
+                        onClick="createItem()"/>
+            </div>
+            <div style="height: 1px; background: #aaaaaa"></div>
+            <div class="infocontainer" style="min-height: 70px;">
+                <div class="names">
+                    <span class="title"><input id="itemname" type="text" class="title" placeholder="item name. keep it short" style="width: 230px;" /></span><br/>
+                    <span class="donor"><input id="donorname" type="text" class="donor" placeholder="your name. keep it real" style="width: 230px;" /></span>
+                </div>
+                <div class="bids">
+                    <span class="winningbid">$<input id="price" type="text" class="winningbid" placeholder="$$" style="width: 40px; margin-left: 5px;"/></span><br/>
+                    <span class="donor">LIST PRICE</span>
+                </div>
+            </div>
+
+            <div style="height: 1px; background: #aaaaaa"></div>
+
+            <div class="description" id="description" style="max-height: 100px; min-height: 100px;">
+                <textarea id="descriptionbody" style="height: 90px;" placeholder="talk about your item. this can be as long as you want. the reader's attention span is the limit!"></textarea>
+            </div>
+
+            <div style="height: 3px; background: #777"></div>
+            <div class="footer" style="background: #999"></div>
+        </div>
+
+        <div class="card left" ng-repeat="item in items" ng-class-even="'left'" ng-class-odd="'right'">
+            <div class="header"></div>
+            <div style="height: 3px; background: #558800"></div>
+            <div class="image"style="text-align: center; position: relative">
+                <img src="{{item.imageurl}}" style="position: relative" />
+                <input type="button" value="remove item" class="removebutton"
+                       style="position: absolute; top: 0; right: 0; margin-top: 10px; margin-right: 10px; background: #990000;
+                       border: 1px solid #fff;"
+                       ng-click="deleteItem(item)"/>
+            </div>
+            <div style="height: 1px; background: #aaaaaa"></div>
+            <div class="infocontainer">
+                <div class="names">
+                    <span class="title">{{item.name}}</span><br/>
+                    <span class="donor">{{item.donorname | uppercase}}</span>
+                </div>
+                <div class="bids">
+                    <span class="winningbid">${{item.price}}</span><br/>
+                    <span class="donor">LIST PRICE</span>
+                </div>
+            </div>
+
+            <div style="height: 1px; background: #aaaaaa"></div>
+
+            <div class="description">
+                {{item.description}}
+            </div>
+
+            <div style="height: 3px; background: #558800"></div>
+            <div class="footer"></div>
+        </div>-->
+    </div>
+</div>
+</body>
+</html>
