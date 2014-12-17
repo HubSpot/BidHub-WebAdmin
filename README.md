@@ -1,6 +1,6 @@
 BidHub Web Administration
 ===================
-Small little web app to see the current status, item winners, and some neat stats for a BidHub auction. BidHub is HubSpot's open-source silent auction app - for an overview of the project, [check out our blog post about it](http://dev.hubspot.com/coming-soon)!
+Small little web app to see the current status, item winners, and some neat stats for a BidHub auction. BidHub is HubSpot's open-source silent auction app - for an overview of the project, [check out our blog post about it](http://dev.hubspot.com/blog/building-an-auction-app-in-a-weekend)!
 
 This will be entirely useless to you if you haven't set up Parse and followed the instructions in the [BidHub Cloud Code repository](https://github.com/HubSpot/BidHub-CloudCode).
 
